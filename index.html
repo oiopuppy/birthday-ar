@@ -2,36 +2,73 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+/>
+
 <title>声音雕塑 · 数据肖像</title>
 
 <style>
+
 *{
   margin:0;
   padding:0;
   box-sizing:border-box;
 }
 
-body{
+html,body{
+  width:100%;
+  height:100%;
   overflow:hidden;
   background:#000;
-  font-family:"Microsoft YaHei",sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
 }
 
-#videoCanvas{
+body{
+  position:relative;
+}
+
+#bg{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  background:
+    radial-gradient(circle at center, rgba(255,255,255,0.06), transparent 60%),
+    #000;
+}
+
+#video{
   position:fixed;
   inset:0;
   width:100%;
   height:100%;
   object-fit:cover;
+  transform:scaleX(-1);
   z-index:1;
+  opacity:0.28;
+  filter:
+    brightness(0.9)
+    contrast(1.1)
+    saturate(0.7);
 }
 
 #threeCanvas{
   position:fixed;
   inset:0;
+  z-index:3;
+  pointer-events:none;
+}
+
+#noise{
+  position:fixed;
+  inset:0;
   z-index:2;
   pointer-events:none;
+  opacity:0.04;
+  background-image:
+    radial-gradient(#fff 0.7px, transparent 0.7px);
+  background-size:4px 4px;
 }
 
 #overlay{
@@ -39,46 +76,46 @@ body{
   inset:0;
   z-index:10;
   display:flex;
-  flex-direction:column;
-  justify-content:center;
   align-items:center;
-  background:rgba(0,0,0,0.75);
-  backdrop-filter:blur(10px);
-  transition:0.6s;
+  justify-content:center;
+  flex-direction:column;
+  background:rgba(0,0,0,0.72);
+  backdrop-filter:blur(12px);
+  transition:0.8s ease;
 }
 
 #title{
-  color:white;
-  font-size:18px;
-  letter-spacing:6px;
-  margin-bottom:20px;
-  opacity:0.9;
+  color:#fff;
+  font-size:20px;
+  letter-spacing:8px;
+  margin-bottom:22px;
+  text-shadow:0 0 30px rgba(255,255,255,0.25);
 }
 
-#desc{
-  color:rgba(255,255,255,0.6);
+#sub{
+  color:rgba(255,255,255,0.55);
   font-size:12px;
   letter-spacing:3px;
-  margin-bottom:40px;
+  margin-bottom:42px;
 }
 
 #startBtn{
   border:none;
   outline:none;
-  cursor:pointer;
-  padding:14px 34px;
-  border-radius:999px;
   background:rgba(255,255,255,0.08);
-  color:white;
+  border:1px solid rgba(255,255,255,0.18);
+  color:#fff;
+  padding:16px 42px;
+  border-radius:999px;
+  cursor:pointer;
   letter-spacing:4px;
   font-size:13px;
-  border:1px solid rgba(255,255,255,0.3);
-  transition:0.3s;
+  transition:0.35s;
 }
 
 #startBtn:hover{
-  background:rgba(255,255,255,0.15);
-  transform:scale(1.05);
+  transform:scale(1.06);
+  background:rgba(255,255,255,0.14);
 }
 
 #status{
@@ -86,56 +123,83 @@ body{
   bottom:28px;
   width:100%;
   text-align:center;
-  color:rgba(255,255,255,0.75);
+  color:rgba(255,255,255,0.72);
   font-size:12px;
   letter-spacing:3px;
   z-index:20;
-  text-shadow:0 0 12px rgba(0,0,0,0.8);
-}
-
-#error{
-  margin-top:20px;
-  color:#ff8d8d;
-  font-size:12px;
-  letter-spacing:2px;
-  max-width:80%;
-  text-align:center;
+  text-shadow:0 0 18px rgba(0,0,0,0.8);
 }
 
 #hint{
   position:fixed;
-  top:40px;
+  top:36px;
   width:100%;
   text-align:center;
-  color:rgba(255,255,255,0.7);
+  color:rgba(255,255,255,0.65);
   font-size:12px;
   letter-spacing:4px;
   z-index:20;
   animation:pulse 3s infinite;
 }
 
-@keyframes pulse{
-  0%{opacity:0.4;}
-  50%{opacity:1;}
-  100%{opacity:0.4;}
+#error{
+  margin-top:20px;
+  color:#ff8e8e;
+  font-size:12px;
+  text-align:center;
+  line-height:1.7;
+  max-width:80%;
 }
+
+@keyframes pulse{
+  0%{opacity:0.35;}
+  50%{opacity:1;}
+  100%{opacity:0.35;}
+}
+
 </style>
 </head>
 
 <body>
 
-<canvas id="videoCanvas"></canvas>
+<div id="bg"></div>
+
+<video
+  id="video"
+  autoplay
+  muted
+  playsinline
+></video>
+
+<div id="noise"></div>
+
 <canvas id="threeCanvas"></canvas>
 
 <div id="overlay">
-  <div id="title">◈ 声音雕塑 ◈</div>
-  <div id="desc">你的声音将塑造此刻</div>
-  <button id="startBtn">开始体验</button>
+
+  <div id="title">
+    ◈ 声音雕塑 ◈
+  </div>
+
+  <div id="sub">
+    你的声音将雕刻此刻
+  </div>
+
+  <button id="startBtn">
+    开始体验
+  </button>
+
   <div id="error"></div>
+
 </div>
 
-<div id="hint">请将脸对准屏幕中央</div>
-<div id="status">等待启动</div>
+<div id="hint">
+  请将脸移动到光线充足处
+</div>
+
+<div id="status">
+  等待启动
+</div>
 
 <script type="importmap">
 {
@@ -149,15 +213,13 @@ body{
 
 import * as THREE from 'three';
 
+const video = document.getElementById('video');
+const canvas = document.getElementById('threeCanvas');
+
 const statusEl = document.getElementById('status');
 const overlay = document.getElementById('overlay');
 const errorEl = document.getElementById('error');
 const startBtn = document.getElementById('startBtn');
-
-const videoCanvas = document.getElementById('videoCanvas');
-const videoCtx = videoCanvas.getContext('2d');
-
-const threeCanvas = document.getElementById('threeCanvas');
 
 let scene;
 let camera;
@@ -167,160 +229,69 @@ let sculpture;
 let analyser;
 let audioArray;
 
-let video;
+let faceDetected = false;
 
-let faceX = 0;
-let faceY = 0;
-let faceSize = 1;
-
-let detected = false;
+let mouseX = 0;
+let mouseY = 0;
 
 const seed = 20040512;
 
 function seededRandom(seed){
+
   let s = seed;
+
   return function(){
+
     s = (s * 16807) % 2147483647;
+
     return (s - 1) / 2147483646;
   };
 }
 
 const rand = seededRandom(seed);
 
-const params = {
-  radius:0.22 + rand() * 0.2,
-  height:0.6 + rand() * 0.3,
-  twist:rand() * Math.PI * 2,
-  density:40,
-  hue:rand()
+const PARAMS = {
+
+  hue:rand(),
+
+  deform:0.25 + rand() * 0.2
 };
 
-function initThree(){
+function updateStatus(text){
 
-  scene = new THREE.Scene();
-
-  camera = new THREE.PerspectiveCamera(
-    60,
-    window.innerWidth / window.innerHeight,
-    0.01,
-    100
-  );
-
-  camera.position.z = 1.4;
-
-  renderer = new THREE.WebGLRenderer({
-    canvas:threeCanvas,
-    antialias:true,
-    alpha:true
-  });
-
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-
-  renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
-  );
-
-  renderer.setClearColor(0x000000,0);
-
-  const ambient = new THREE.AmbientLight(0xffffff,0.7);
-  scene.add(ambient);
-
-  const light1 = new THREE.PointLight(0x00ffff,3);
-  light1.position.set(2,2,2);
-
-  const light2 = new THREE.PointLight(0xff00aa,3);
-  light2.position.set(-2,-2,2);
-
-  scene.add(light1);
-  scene.add(light2);
-
-  createSculpture();
-}
-
-function createSculpture(){
-
-  const geometry = new THREE.IcosahedronGeometry(
-    0.22,
-    30
-  );
-
-  const positions = geometry.attributes.position;
-
-  const original = new Float32Array(
-    positions.array
-  );
-
-  geometry.userData.original = original;
-
-  const material = new THREE.MeshPhysicalMaterial({
-    metalness:0.15,
-    roughness:0.25,
-    transmission:0.2,
-    thickness:0.5,
-    transparent:true,
-    opacity:0.9,
-    color:new THREE.Color().setHSL(
-      params.hue,
-      0.9,
-      0.6
-    ),
-    emissive:new THREE.Color().setHSL(
-      params.hue,
-      1,
-      0.1
-    )
-  });
-
-  const wire = new THREE.MeshBasicMaterial({
-    color:0xffffff,
-    wireframe:true,
-    transparent:true,
-    opacity:0.12
-  });
-
-  sculpture = new THREE.Group();
-
-  sculpture.add(
-    new THREE.Mesh(geometry,material)
-  );
-
-  sculpture.add(
-    new THREE.Mesh(geometry.clone(),wire)
-  );
-
-  scene.add(sculpture);
+  statusEl.textContent = text;
 }
 
 async function initCamera(){
 
-  return new Promise(async(resolve,reject)=>{
+  updateStatus('正在初始化摄像头');
 
-    try{
+  try{
 
-      video = document.createElement('video');
+    if(
+      !navigator.mediaDevices ||
+      !navigator.mediaDevices.getUserMedia
+    ){
+      throw new Error(
+        '浏览器不支持摄像头'
+      );
+    }
 
-      video.autoplay = true;
-      video.muted = true;
-      video.playsInline = true;
+    const stream =
+      await navigator.mediaDevices.getUserMedia({
 
-      video.style.position = 'fixed';
-      video.style.opacity = '0';
-      video.style.pointerEvents = 'none';
-      video.style.zIndex = '-999';
+        video:{
+          facingMode:'user',
+          width:{ideal:1280},
+          height:{ideal:720}
+        },
 
-      document.body.appendChild(video);
+        audio:false
+      });
 
-      const stream =
-        await navigator.mediaDevices.getUserMedia({
-          video:{
-            width:{ideal:640},
-            height:{ideal:480}
-          },
-          audio:false
-        });
+    video.srcObject = stream;
 
-      video.srcObject = stream;
+    await new Promise((resolve,reject)=>{
 
       video.onloadedmetadata = async()=>{
 
@@ -328,48 +299,59 @@ async function initCamera(){
 
           await video.play();
 
-          videoCanvas.width =
-            video.videoWidth || 640;
-
-          videoCanvas.height =
-            video.videoHeight || 480;
-
           resolve();
 
-        }catch(err){
+        }catch(e){
 
-          reject(err);
+          reject(e);
         }
       };
 
       video.onerror = reject;
 
-    }catch(err){
+      setTimeout(()=>{
 
-      reject(err);
-    }
-  });
+        reject(
+          new Error(
+            '摄像头启动超时'
+          )
+        );
+
+      },10000);
+
+    });
+
+    updateStatus('摄像头连接成功');
+
+  }catch(err){
+
+    console.error(err);
+
+    throw err;
+  }
 }
 
 async function initAudio(){
+
+  updateStatus('正在初始化麦克风');
 
   try{
 
     const stream =
       await navigator.mediaDevices.getUserMedia({
+
         audio:true
       });
 
-    const audioContext =
-      new AudioContext();
-
-    const source =
-      audioContext.createMediaStreamSource(stream);
+    const ctx = new AudioContext();
 
     analyser =
-      audioContext.createAnalyser();
+      ctx.createAnalyser();
 
     analyser.fftSize = 128;
+
+    const source =
+      ctx.createMediaStreamSource(stream);
 
     source.connect(analyser);
 
@@ -378,135 +360,197 @@ async function initAudio(){
         analyser.frequencyBinCount
       );
 
-    statusEl.textContent = '麦克风已连接';
+    updateStatus('麦克风连接成功');
 
-  }catch(e){
+  }catch(err){
 
-    console.warn(e);
+    console.warn(err);
 
-    statusEl.textContent =
-      '麦克风不可用 · 已进入静默模式';
+    updateStatus('麦克风不可用 · 已进入静默模式');
   }
 }
 
 function getVolume(){
 
-  if(!analyser) return 0.15;
+  if(!analyser){
+
+    return 0.08;
+  }
 
   analyser.getByteFrequencyData(audioArray);
 
   let sum = 0;
 
   for(let i=0;i<audioArray.length;i++){
+
     sum += audioArray[i];
   }
 
   return sum / (audioArray.length * 255);
 }
 
-function detectFace(){
+function initThree(){
 
-  if(!video || video.readyState < 2) return;
+  scene = new THREE.Scene();
 
-  videoCtx.save();
-
-  videoCtx.translate(videoCanvas.width,0);
-  videoCtx.scale(-1,1);
-
-  videoCtx.drawImage(
-    video,
-    0,
-    0,
-    videoCanvas.width,
-    videoCanvas.height
-  );
-
-  videoCtx.restore();
-
-  const img =
-    videoCtx.getImageData(
-      0,
-      0,
-      videoCanvas.width,
-      videoCanvas.height
+  camera =
+    new THREE.PerspectiveCamera(
+      60,
+      window.innerWidth / window.innerHeight,
+      0.01,
+      100
     );
 
-  const data = img.data;
+  camera.position.z = 1.6;
 
-  let totalX = 0;
-  let totalY = 0;
-  let count = 0;
+  renderer =
+    new THREE.WebGLRenderer({
 
-  let minX = 999999;
-  let maxX = 0;
+      canvas,
+      alpha:true,
+      antialias:true
+    });
 
-  for(let y=0;y<videoCanvas.height;y+=5){
+  renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio,2)
+  );
 
-    for(let x=0;x<videoCanvas.width;x+=5){
+  renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+  );
 
-      const i =
-        (y * videoCanvas.width + x) * 4;
+  renderer.setClearColor(
+    0x000000,
+    0
+  );
 
-      const r = data[i];
-      const g = data[i+1];
-      const b = data[i+2];
+  const ambient =
+    new THREE.AmbientLight(
+      0xffffff,
+      0.8
+    );
 
-      const isSkin =
-        r > 90 &&
-        g > 40 &&
-        b > 20 &&
-        r > g &&
-        r > b &&
-        Math.abs(r-g) > 15;
+  scene.add(ambient);
 
-      if(isSkin){
+  const light1 =
+    new THREE.PointLight(
+      0x00ffff,
+      3
+    );
 
-        totalX += x;
-        totalY += y;
+  light1.position.set(
+    2,
+    2,
+    2
+  );
 
-        count++;
+  scene.add(light1);
 
-        if(x < minX) minX = x;
-        if(x > maxX) maxX = x;
-      }
-    }
-  }
+  const light2 =
+    new THREE.PointLight(
+      0xff00aa,
+      3
+    );
 
-  if(count > 150){
+  light2.position.set(
+    -2,
+    -2,
+    2
+  );
 
-    detected = true;
+  scene.add(light2);
 
-    faceX = totalX / count / videoCanvas.width;
-    faceY = totalY / count / videoCanvas.height;
+  createSculpture();
+}
 
-    faceSize =
-      Math.max((maxX - minX) / videoCanvas.width,0.25);
+function createSculpture(){
 
-    statusEl.textContent =
-      '已检测到你的存在';
+  const geometry =
+    new THREE.IcosahedronGeometry(
+      0.25,
+      45
+    );
 
-  }else{
+  const original =
+    new Float32Array(
+      geometry.attributes.position.array
+    );
 
-    detected = false;
+  geometry.userData.original = original;
 
-    statusEl.textContent =
-      '请将脸移动到光线处';
-  }
+  const material =
+    new THREE.MeshPhysicalMaterial({
+
+      color:new THREE.Color().setHSL(
+        PARAMS.hue,
+        0.85,
+        0.62
+      ),
+
+      emissive:new THREE.Color().setHSL(
+        PARAMS.hue,
+        1,
+        0.08
+      ),
+
+      metalness:0.15,
+      roughness:0.2,
+
+      transparent:true,
+      opacity:0.95,
+
+      clearcoat:1,
+      clearcoatRoughness:0.2
+    });
+
+  const wire =
+    new THREE.MeshBasicMaterial({
+
+      color:0xffffff,
+      wireframe:true,
+      transparent:true,
+      opacity:0.08
+    });
+
+  sculpture = new THREE.Group();
+
+  sculpture.add(
+    new THREE.Mesh(
+      geometry,
+      material
+    )
+  );
+
+  sculpture.add(
+    new THREE.Mesh(
+      geometry.clone(),
+      wire
+    )
+  );
+
+  scene.add(sculpture);
 }
 
 function animateSculpture(volume){
 
-  const mesh = sculpture.children[0];
+  const mesh =
+    sculpture.children[0];
 
-  const geo = mesh.geometry;
+  const geo =
+    mesh.geometry;
 
-  const pos = geo.attributes.position;
+  const pos =
+    geo.attributes.position;
 
-  const arr = pos.array;
+  const arr =
+    pos.array;
 
-  const orig = geo.userData.original;
+  const orig =
+    geo.userData.original;
 
-  const time = performance.now() * 0.001;
+  const t =
+    performance.now() * 0.001;
 
   for(let i=0;i<arr.length;i+=3){
 
@@ -515,68 +559,103 @@ function animateSculpture(volume){
     const oz = orig[i+2];
 
     const noise =
-      Math.sin(ox*8 + time*2) *
-      Math.cos(oy*8 + time*1.3) *
-      Math.sin(oz*8 + time*1.7);
 
-    const amp = 1 + volume * 1.8;
+      Math.sin(ox * 8 + t * 2.2) *
+
+      Math.cos(oy * 8 + t * 1.7) *
+
+      Math.sin(oz * 8 + t * 2.5);
+
+    const amp =
+      1 +
+      volume * 2.2;
 
     arr[i] =
-      ox + ox * noise * 0.15 * amp;
+      ox +
+      ox * noise *
+      PARAMS.deform *
+      amp;
 
     arr[i+1] =
-      oy + oy * noise * 0.15 * amp;
+      oy +
+      oy * noise *
+      PARAMS.deform *
+      amp;
 
     arr[i+2] =
-      oz + oz * noise * 0.15 * amp;
+      oz +
+      oz * noise *
+      PARAMS.deform *
+      amp;
   }
 
   pos.needsUpdate = true;
 
   geo.computeVertexNormals();
-
-  sculpture.rotation.y += 0.005;
-  sculpture.rotation.x += 0.003;
 }
 
 function animate(){
 
   requestAnimationFrame(animate);
 
-  detectFace();
+  const volume =
+    getVolume();
 
-  const volume = getVolume();
+  animateSculpture(volume);
 
-  if(detected){
+  sculpture.rotation.y +=
+    0.004 + volume * 0.03;
 
-    const x =
-      (faceX - 0.5) * 1.4;
+  sculpture.rotation.x +=
+    0.002 + volume * 0.01;
 
-    const y =
-      -(faceY - 0.5) * 1.8;
+  const targetX =
+    (mouseX - 0.5) * 0.6;
 
-    sculpture.position.x +=
-      (x - sculpture.position.x) * 0.08;
+  const targetY =
+    -(mouseY - 0.5) * 0.6;
 
-    sculpture.position.y +=
-      (y - sculpture.position.y) * 0.08;
+  sculpture.position.x +=
+    (targetX - sculpture.position.x) * 0.05;
 
-    const scale =
-      0.8 + faceSize + volume * 1.5;
+  sculpture.position.y +=
+    (targetY - sculpture.position.y) * 0.05;
 
-    sculpture.scale.setScalar(scale);
+  const scale =
+    1 + volume * 1.8;
 
-    animateSculpture(volume);
-
-  }
+  sculpture.scale.setScalar(scale);
 
   renderer.render(scene,camera);
 }
 
+window.addEventListener('mousemove',(e)=>{
+
+  mouseX =
+    e.clientX / window.innerWidth;
+
+  mouseY =
+    e.clientY / window.innerHeight;
+});
+
+window.addEventListener('touchmove',(e)=>{
+
+  const t = e.touches[0];
+
+  mouseX =
+    t.clientX / window.innerWidth;
+
+  mouseY =
+    t.clientY / window.innerHeight;
+});
+
 window.addEventListener('resize',()=>{
 
+  if(!camera) return;
+
   camera.aspect =
-    window.innerWidth / window.innerHeight;
+    window.innerWidth /
+    window.innerHeight;
 
   camera.updateProjectionMatrix();
 
@@ -590,50 +669,71 @@ startBtn.addEventListener('click',async()=>{
 
   errorEl.innerHTML = '';
 
+  startBtn.disabled = true;
+
   try{
-
-    startBtn.disabled = true;
-
-    statusEl.textContent =
-      '正在初始化摄像头';
 
     await initCamera();
 
-    statusEl.textContent =
-      '正在初始化麦克风';
-
     await initAudio();
-
-    statusEl.textContent =
-      '正在创建雕塑';
 
     initThree();
 
     overlay.style.opacity = '0';
 
     setTimeout(()=>{
+
       overlay.style.display = 'none';
-    },700);
+
+    },800);
+
+    updateStatus('说句话试试');
 
     animate();
 
-    statusEl.textContent =
-      '说句话试试';
+  }catch(err){
 
-  }catch(e){
+    console.error(err);
 
-    console.error(e);
+    let msg =
+      err.message || '未知错误';
 
-    errorEl.innerHTML =
-      '请允许摄像头与麦克风权限，并确保使用 HTTPS 打开页面';
+    if(err.name === 'NotAllowedError'){
+
+      msg =
+        '你拒绝了摄像头或麦克风权限';
+    }
+
+    else if(err.name === 'NotReadableError'){
+
+      msg =
+        '摄像头被其它软件占用';
+    }
+
+    else if(err.name === 'NotFoundError'){
+
+      msg =
+        '没有检测到摄像头设备';
+    }
+
+    else if(err.name === 'AbortError'){
+
+      msg =
+        '摄像头启动失败';
+    }
+
+    errorEl.innerHTML = `
+      启动失败<br><br>
+      ${msg}
+    `;
+
+    updateStatus('启动失败');
 
     startBtn.disabled = false;
-
-    statusEl.textContent =
-      '启动失败';
   }
 });
 
 </script>
+
 </body>
 </html>
