@@ -294,30 +294,61 @@ function createSculpture(){
 
 async function initCamera(){
 
-  video = document.createElement('video');
+  return new Promise(async(resolve,reject)=>{
 
-  video.setAttribute('autoplay','');
-  video.setAttribute('muted','');
-  video.setAttribute('playsinline','');
+    try{
 
-  const stream =
-    await navigator.mediaDevices.getUserMedia({
-      video:true,
-      audio:false
-    });
+      video = document.createElement('video');
 
-  video.srcObject = stream;
+      video.autoplay = true;
+      video.muted = true;
+      video.playsInline = true;
 
-  await video.play();
+      video.style.position = 'fixed';
+      video.style.opacity = '0';
+      video.style.pointerEvents = 'none';
+      video.style.zIndex = '-999';
 
-  await new Promise(resolve=>{
-    video.onloadedmetadata = resolve;
+      document.body.appendChild(video);
+
+      const stream =
+        await navigator.mediaDevices.getUserMedia({
+          video:{
+            width:{ideal:640},
+            height:{ideal:480}
+          },
+          audio:false
+        });
+
+      video.srcObject = stream;
+
+      video.onloadedmetadata = async()=>{
+
+        try{
+
+          await video.play();
+
+          videoCanvas.width =
+            video.videoWidth || 640;
+
+          videoCanvas.height =
+            video.videoHeight || 480;
+
+          resolve();
+
+        }catch(err){
+
+          reject(err);
+        }
+      };
+
+      video.onerror = reject;
+
+    }catch(err){
+
+      reject(err);
+    }
   });
-
-  videoCanvas.width = video.videoWidth || 640;
-  videoCanvas.height = video.videoHeight || 480;
-
-  statusEl.textContent = '摄像头已连接';
 }
 
 async function initAudio(){
