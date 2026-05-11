@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8"/>
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1.0"
+/>
+
+<title>黄普远 · Digital Birthday Universe</title>
+
+<link rel="stylesheet" href="./style.css"/>
+
+<script type="importmap">
+{
+  "imports":{
+    "three":"https://unpkg.com/three@0.157.0/build/three.module.js"
+  }
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+</head>
+
+<body>
+
+<video
+id="video"
+autoplay
+muted
+playsinline
+></video>
+
+<canvas id="threeCanvas"></canvas>
+
+<div id="noise"></div>
+
+<div id="overlay">
+
+<div id="title">
+
+◈ DIGITAL BIRTHDAY UNIVERSE ◈
+
+</div>
+
+<div id="intro">
+
+一个为黄普远生成的数字宇宙
+
+</div>
+
+<button id="startBtn">
+
+进入宇宙
+
+</button>
+
+</div>
+
+<div id="status">
+
+等待启动
+
+</div>
+
+<div id="floatingText"></div>
+
+<div id="speechText"></div>
+
+<div id="gestureHint">
+
+张开手掌爆炸 · 合拢聚合 · 双击生日模式
+
+</div>
+
+<div id="birthdayMode">
+
+<div id="birthdayContent">
+
+<div id="happy">
+
+HAPPY BIRTHDAY
+
+</div>
+
+<div id="name">
+
+黄普远
+
+</div>
+
+<div id="message">
+
+愿你永远拥有热爱世界的能力<br><br>
+
+2026.05.12
+
+</div>
+
+<button id="saveBtn">
+
+保存数字肖像
+
+</button>
+
+</div>
+
+</div>
+
+<audio
+id="ambientAudio"
+src="./assets/ambient.mp3"
+loop
+></audio>
+
+<script type="module" src="./main.js"></script>
+
+</body>
+
+</html>
